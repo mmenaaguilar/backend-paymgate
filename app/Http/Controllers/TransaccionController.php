@@ -89,25 +89,25 @@ class TransaccionController extends Controller
         return $this->ejecutarMutacion('sp_eliminar_transaccion', $parametros);
     }
 
-    /**
+/**
      * 5. CAMBIAR ESTADO A REEMBOLSADO (Método de Negocio Particular)
      * Cambia el estado_id de la transacción a 'REEMBOLSADO' (ID 4) de forma directa
      * e inserta en la tabla 'reembolsos' el rastro y motivo de la devolución.
      */
-    public function cambiarEstadoReembolsado(Request $request, mixed $id): JsonResponse
+    public function cambiarEstadoReembolsado(Request $request): JsonResponse
     {
         $request->validate([
-            'id_solicitud_reembolso' => 'required|string',
-            'motivo' => 'required|string'
+            'id' => 'required|integer',                               
+            'id_solicitud_reembolso' => 'required|string|max:100',    
+            'motivo' => 'required|string'                           
         ]);
 
         $parametros = [
-            $id, 
-            $request->input('id_solicitud_reembolso'),
-            $request->input('motivo'),
-            $this->obtenerUsuarioActivo()
+            $request->input('id'),                     
+            $request->input('id_solicitud_reembolso'), 
+            $request->input('motivo'),                 
+            $this->obtenerUsuarioActivo()             
         ];
-
         return $this->ejecutarMutacion('sp_procesar_reembolso_transaccion', $parametros);
     }
 }

@@ -35,16 +35,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [TransaccionController::class, 'index']);             
         Route::get('/{id}', [TransaccionController::class, 'show']);         
         Route::post('/', [TransaccionController::class, 'guardar']);          
-        Route::put('/{id}', [TransaccionController::class, 'guardar']);       
+        Route::put('/', [TransaccionController::class, 'guardar']);       
         Route::delete('/{id}', [TransaccionController::class, 'destroy']);
-        Route::post('/{id}/reembolsar', [TransaccionController::class, 'cambiarEstadoReembolsado']);
+        Route::post('/reembolsar', [TransaccionController::class, 'cambiarEstadoReembolsado']);
     });
 
     Route::prefix('reembolsos')->group(function () {
         Route::get('/', [ReembolsoController::class, 'index']);             
         Route::get('/{id}', [ReembolsoController::class, 'show']);            
         Route::post('/', [ReembolsoController::class, 'guardar']);            
-        Route::put('/{id}', [ReembolsoController::class, 'guardar']);        
+        Route::put('/', [ReembolsoController::class, 'guardar']);        
         Route::delete('/{id}', [ReembolsoController::class, 'destroy']);     
     });
 
