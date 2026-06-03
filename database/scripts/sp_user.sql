@@ -2,9 +2,8 @@ USE bipay;
 
 -- ==========================================================================
 -- 1. SP: sp_guardar_usuario
--- Maneja tanto la Creación (ID = 0) como la Edición (ID > 0) de usuarios.
--- Considera si se actualiza o no la contraseña (si llega NULL, la mantiene).
--- Devuelve siempre el registro afectado con un código de éxito para Laravel.
+-- Mapeado a los métodos: register() [p_id = 0] y editar() [p_id > 0]
+-- Si p_contrasena_hash llega NULL al editar, la contraseña actual se mantiene intacta.
 -- ==========================================================================
 DROP PROCEDURE IF EXISTS sp_guardar_usuario;
 DELIMITER $$
@@ -45,13 +44,15 @@ BEGIN
             p_usuario_activo
         );
         
-        -- AJUSTE CRÍTICO: Retorna el usuario recién creado para que el controlador responda con éxito
-        SELECT *, 'OK' AS respuesta_codigo FROM usuarios WHERE id = LAST_INSERT_ID();
+        -- Retorna el usuario recién creado especificando el alias u.*
+        SELECT u.*, 'OK' AS respuesta_codigo 
+        FROM usuarios u 
+        WHERE u.id = LAST_INSERT_ID();
 
     ELSE
         -- OPERACIÓN: EDITAR (Mapeado al método editar del controlador)
-        -- Si p_contrasena_hash viene NULL significa que el usuario no cambió su clave en el formulario.
-        IF p_contrasena_hash IS NULL THEN
+        IF p_contrasena_hash IS NULL OR p_contrasena_hash = '' THEN
+            -- Si no se envía contraseña, se actualizan solo los datos básicos
             UPDATE usuarios 
             SET usuario = p_usuario,
                 correo = p_correo,
@@ -62,7 +63,7 @@ BEGIN
                 actualizado_por = p_usuario_activo
             WHERE id = p_id;
         ELSE
-            -- Si p_contrasena_hash NO es NULL, actualizamos también la clave encriptada.
+            -- Si se envía una nueva contraseña (encriptada desde Laravel), se actualiza
             UPDATE usuarios 
             SET usuario = p_usuario,
                 correo = p_correo,
@@ -75,8 +76,10 @@ BEGIN
             WHERE id = p_id;
         END IF;
         
-        -- AJUSTE CRÍTICO: Retorna el usuario editado para el flujo del controlador
-        SELECT *, 'OK' AS respuesta_codigo FROM usuarios WHERE id = p_id;
+        -- Retorna el usuario modificado especificando el alias u.*
+        SELECT u.*, 'OK' AS respuesta_codigo 
+        FROM usuarios u 
+        WHERE u.id = p_id;
         
     END IF;
 END$$
@@ -119,7 +122,6 @@ BEGIN
         actualizado_por = p_usuario_activo
     WHERE id = p_id;
     
-    -- Retorno opcional de confirmación para evitar advertencias de ejecución vacía
     SELECT p_id AS id, 'OK' AS respuesta_codigo;
 END$$
 DELIMITER ;
@@ -143,7 +145,6 @@ BEGIN
         actualizado_por = p_usuario_activo
     WHERE id = p_id;
     
-    -- Retorno de confirmación para mutaciones de borrado
     SELECT p_id AS id, 'OK' AS respuesta_codigo;
 END$$
 DELIMITER ;

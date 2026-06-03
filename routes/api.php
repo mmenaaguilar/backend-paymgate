@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- MÓDULO: USUARIOS ---
     Route::prefix('usuarios')->group(function () {
+        Route::post('/usuarios/logout', [UsuarioController::class, 'logout']);
         Route::put('/{id}', [UsuarioController::class, 'editar']);
         Route::delete('/{id}', [UsuarioController::class, 'destroy']);
     });
