@@ -67,8 +67,10 @@ class UsuarioController extends Controller
             'token' => $token, 
             'usuario' => [
                 'id' => $usuarioBD->id,
+                'id_persona' => $usuarioBD->persona_id,
                 'usuario' => $usuarioBD->usuario,
                 'correo' => $usuarioBD->correo,
+                'telefono' => $usuarioBD->telefono,
                 'nombre' => $usuarioBD->nombre,
                 'apellido' => $usuarioBD->apellido
             ]

@@ -48,10 +48,9 @@ class TransaccionController extends Controller
         return $this->ejecutarConsulta('sp_buscar_transaccion', $parametros, true);
     }
 
-    /**
+/**
      * 3. GUARDAR / ACTUALIZAR TRANSACCIÓN (CRUD - Crear y Editar)
      * Mapeado al SP: sp_guardar_transaccion
-     * Se limpia de los parámetros de invitado y se estandariza el uso estricto de persona_id.
      */
     public function guardar(Request $request): JsonResponse
     {
@@ -64,25 +63,25 @@ class TransaccionController extends Controller
         $id = $request->input('id', 0);
 
         $parametros = [
-            $id,
-            $request->input('persona_id'),               // ◄ Vinculación forzosa con el cliente logueado
-            $request->input('id_solicitud'),
-            $request->input('id_transaccion_pasarela', null),
-            $request->input('monto'),
-            $request->input('otp', null),
-            $request->input('estado_id', 1),
-            $request->input('codigo_respuesta', null),
-            $request->input('descripcion', null),
-            $request->input('activo', 1),
-            $this->obtenerUsuarioActivo()
+            $id,                                        // 1. p_id (0)
+            $request->input('persona_id'),              // 2. p_persona_id (2)
+            $request->input('id_solicitud'),            // 3. p_id_solicitud ("REQ-2026-001")
+            $request->input('id_transaccion_pasarela'), // 4. p_id_transaccion_pasarela ("1212")
+            $request->input('monto'),                   // 5. p_monto ("13")
+            $request->input('otp'),                     // 6. p_otp ("12")
+            $request->input('estado_id', 1),            // 7. p_estado_id (1)
+            $request->input('codigo_respuesta'),        // 8. p_codigo_respuesta ("13")
+            $request->input('descripcion'),             // 9. p_descripcion ("sdsssas")
+            $request->input('activo', 1),               // 10. p_activo (1)
+            $this->obtenerUsuarioActivo()               // 11. p_usuario_activo ("juan99")
         ];
 
         // 201 Created para registros nuevos, 200 OK para actualizaciones
         $codigoHttp = ($id == 0) ? 201 : 200;
 
+        // Utilizamos tu método base de la plantilla de manera limpia
         return $this->ejecutarMutacion('sp_guardar_transaccion', $parametros, $codigoHttp);
     }
-
     /**
      * 4. ANULAR TRANSACCIÓN (CRUD - Eliminar Lógico)
      * Mapeado al SP: sp_eliminar_transaccion
@@ -124,7 +123,7 @@ class TransaccionController extends Controller
      * Mapeado al SP: sp_listar_transacciones_por_persona
      * Se encarga de listar el historial ejecutando la ruta relacional: transacciones -> personas.
      */
-    public function listarReembolsosPorPersona(Request $request, mixed $personaId): JsonResponse
+    public function listarPorPersona(Request $request, mixed $personaId): JsonResponse
     {
         $parametros = [
             $personaId,                              

@@ -39,7 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/', [TransaccionController::class, 'guardar']);       
         Route::delete('/{id}', [TransaccionController::class, 'destroy']);
         Route::post('/reembolsar', [TransaccionController::class, 'cambiarEstadoReembolsado']);
-        Route::get('/persona/{personaId}', [TransaccionController::class, 'listarReembolsosPorPersona']);
+        Route::get('/persona/{personaId}', [TransaccionController::class, 'listarPorPersona']);
     });
 
     Route::prefix('reembolsos')->group(function () {
