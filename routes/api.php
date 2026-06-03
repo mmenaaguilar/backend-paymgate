@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/', [TransaccionController::class, 'guardar']);       
         Route::delete('/{id}', [TransaccionController::class, 'destroy']);
         Route::post('/reembolsar', [TransaccionController::class, 'cambiarEstadoReembolsado']);
+        Route::get('/persona/{personaId}', [TransaccionController::class, 'listarReembolsosPorPersona']);
     });
 
     Route::prefix('reembolsos')->group(function () {
@@ -46,7 +47,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [ReembolsoController::class, 'show']);            
         Route::post('/', [ReembolsoController::class, 'guardar']);            
         Route::put('/', [ReembolsoController::class, 'guardar']);        
-        Route::delete('/{id}', [ReembolsoController::class, 'destroy']);     
+        Route::delete('/{id}', [ReembolsoController::class, 'destroy']);    
+        Route::get('/persona/{personaId}', [ReembolsoController::class, 'listarPorPersona']); 
     });
 
 });

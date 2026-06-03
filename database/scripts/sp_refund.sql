@@ -144,3 +144,50 @@ BEGIN
     SELECT p_id AS id, 'OK' AS respuesta_codigo;
 END$$
 DELIMITER ;
+
+
+-- ==========================================================================
+-- 6. SP: sp_listar_reembolsos_por_persona
+-- Mapeado al Historial de Reembolsos por Cliente en React con filtros avanzados.
+-- Filtra obligatoriamente por persona_id (del reembolso), cruzando con 
+-- transacciones y personas para obtener la trazabilidad completa de los fondos.
+-- ==========================================================================
+DROP PROCEDURE IF EXISTS sp_listar_reembolsos_por_persona;
+DELIMITER $$
+
+CREATE PROCEDURE sp_listar_reembolsos_por_persona(
+    IN p_persona_id BIGINT,                  
+    IN p_fecha_inicio DATETIME,              
+    IN p_fecha_fin DATETIME,
+    IN p_estado_id INT,
+    IN p_termino_busqueda VARCHAR(150),
+    IN p_activo TINYINT(1),
+    IN p_usuario_activo VARCHAR(100)
+)
+BEGIN
+    SELECT r.*, 
+           e.nombre AS estado_nombre,
+           t.monto AS transaccion_monto,
+           t.id_solicitud AS transaccion_id_solicitud,
+           p.nombre AS cliente_nombre,
+           p.apellido AS cliente_apellido,
+           p.telefono AS cliente_telefono
+    FROM reembolsos r                                     
+    LEFT JOIN estados e ON r.estado_id = e.id
+    INNER JOIN transacciones t ON r.transaccion_id = t.id  
+    INNER JOIN personas p ON t.persona_id = p.id
+    WHERE (t.persona_id = p_persona_id)           
+      AND (r.activo = p_activo)
+      AND (p_fecha_inicio IS NULL OR r.fecha_creacion >= p_fecha_inicio)
+      AND (p_fecha_fin IS NULL OR r.fecha_creacion <= p_fecha_fin)
+      AND (p_estado_id IS NULL OR r.estado_id = p_estado_id)
+      AND (
+          p_termino_busqueda = '' 
+          OR r.id_solicitud_reembolso LIKE CONCAT('%', p_termino_busqueda, '%')
+          OR t.id_solicitud LIKE CONCAT('%', p_termino_busqueda, '%')
+          OR p.nombre LIKE CONCAT('%', p_termino_busqueda, '%')
+          OR p.apellido LIKE CONCAT('%', p_termino_busqueda, '%')
+      )
+    ORDER BY r.id DESC;
+END$$
+DELIMITER ;
